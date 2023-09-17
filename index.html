@@ -149,7 +149,9 @@
   
         function callBot() {
           console.log(context);
-          const url = `/respond?input='${context}'`;
+          const url = new URL("/respond", window.location.origin);
+          url.searchParams.set("input", context);
+          console.log(url)
         
           fetch(url, {
             method: "GET",
