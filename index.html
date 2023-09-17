@@ -12,6 +12,12 @@
         --dark2: #242424;
         --dark3: #363636;
         --textDark: #cac4c4;
+        --lingrad: linear-gradient(
+          90deg,
+          rgba(255, 240, 82, 1) 0%,
+          rgba(255, 155, 34, 1) 39%,
+          rgba(255, 59, 236, 1) 75%
+        );
       }
       * {
         font-family: "Lato", sans-serif;
@@ -26,12 +32,7 @@
       }
       h1 {
         background: rgb(255, 240, 82);
-        background: linear-gradient(
-          90deg,
-          rgba(255, 240, 82, 1) 0%,
-          rgba(255, 155, 34, 1) 39%,
-          rgba(255, 59, 236, 1) 75%
-        );
+        background: var(--lingrad);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
@@ -95,7 +96,7 @@
         font-size: 16px;
       }
 
-      button {
+      .sqbutton {
         width: 50px;
         height: 50px;
         background-color: var(--dark3);
@@ -122,80 +123,169 @@
       </div>
       <div id="bottom">
         <hr style="border-color: #131313" />
-        <p>Settings</p>
-        <p>Theme</p>
-        <p><a href="https://github.com/jzhang38/TinyLlama" style="text-decoration: none;">Github</a></p>
-        <p><a href="https://github.com/jzhang38/TinyLlama/issues" style="text-decoration: none;">FeedBack</a></p>
+        <p>
+          <button
+            onclick="alert('This Model and this page do not use information you chat about')"
+            style="
+              border: none;
+              background: none;
+              padding: 0;
+              font-size: 16px;
+              color: var(--textDark);
+            "
+          >
+            Settings
+          </button>
+        </p>
+        <p>
+          <button
+            onclick="changeMode()"
+            style="
+              border: none;
+              background: none;
+              padding: 0;
+              font-size: 16px;
+              color: var(--textDark);
+            "
+          >
+            Theme
+          </button>
+        </p>
+        <p>
+          <a
+            href="https://github.com/jzhang38/TinyLlama"
+            style="text-decoration: none"
+            >Github</a
+          >
+        </p>
+        <p>
+          <a
+            href="https://github.com/jzhang38/TinyLlama/issues"
+            style="text-decoration: none"
+            >FeedBack</a
+          >
+        </p>
       </div>
     </div>
-    <div id="chatarea">text</div>
+    <div id="chatarea"></div>
     <div id="prompting">
-      <button id="plugins" onclick="alert('we currently have no plugins!')">
+      <button
+        id="plugins"
+        onclick="alert('we currently have no plugins!')"
+        class="sqbutton"
+      >
         <i class="fa-solid fa-bolt"></i>
       </button>
-      <input type="text" id="prompt" placeholder="Type a message to start chatting"/>
-      <button id="send" onclick="enterInput(document.getElementById('prompt').value)"><i class="fa-solid fa-paper-plane"></i></button>
+      <input
+        type="text"
+        id="prompt"
+        placeholder="Type a message to start chatting"
+      />
+      <button
+        id="send"
+        onclick="enterInput(document.getElementById('prompt').value)"
+        class="sqbutton"
+      >
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
     </div>
     <script>
-        let chatArray = [];
-        let context=""
-  
-        function enterInput(val) {
-          context = context+'### Human:'+val+'### Assistant:';
-          chatArray.push(val);
-          callBot();
-          updateChatView();
-        }
-  
-        function callBot() {
-          console.log(context);
-          const url = new URL("/respond", window.location.origin);
-          url.searchParams.set("input", context);
-          console.log(url)
-        
-          fetch(url, {
-            method: "GET",
-            headers: {
-              "ngrok-skip-browser-warning": "69420",
-            }
-          })
-            .then(async (response) => {
-              const data = await response.text();
-              updateContext(data);
-              updateChatView()
-            })
-            .catch((error) => {
-              console.log(error);
-              updateContext("ERROR");
-              updateChatView()
-            });
-        }
-  
-        function updateContext(text){
-          context=context+text;
-          console.log(text);
-          chatArray.push(text);
-        }
-  
-        function updateChatView() {
-          document.getElementById("chatarea").innerHTML = "";
-          loopA(chatArray);
-        }
-  
-        function loopA(array) {
-          for (let i = 0; i < array.length; i++) {
-            let color = "#484848";
-            let margin = "40%";
-            if (i % 2 !== 0) {
-              color = "#121212";
-              margin ="0%"
-            }
+      let chatArray = [];
+      let context = "";
+      let mode = "dark";
 
-            document.getElementById(
-              "chatarea"
-            ).innerHTML += `<div style="background-color: ${color}; width: 60%; margin: 10px; padding: 10px; border-radius:10px; margin-left:${margin}">${array[i]}</div>`;
-          }
+      const input = document.getElementById("prompt");
+
+      input.addEventListener("keydown", function (event) {
+        if (event.keyCode === 13) {
+          enterInput(document.getElementById("prompt").value);
         }
-      </script>
+      });
+
+      function enterInput(val) {
+        context = context + "### Human:" + val + "### Assistant:";
+        chatArray.push(val);
+        callBot();
+        updateChatView();
+        document.getElementById("prompt").value = "";
+      }
+
+      function callBot() {
+        console.log(context);
+        const url = new URL("/respond", window.location.origin);
+        url.searchParams.set("input", context);
+        console.log(url);
+
+        fetch(url, {
+          method: "GET",
+          headers: {
+            "ngrok-skip-browser-warning": "69420",
+          },
+        })
+          .then(async (response) => {
+            const data = await response.text();
+            updateContext(data);
+            updateChatView();
+          })
+          .catch((error) => {
+            console.log(error);
+            updateContext("ERROR");
+            updateChatView();
+          });
+      }
+
+      function updateContext(text) {
+        context = context + text;
+        console.log(text);
+        chatArray.push(text);
+      }
+
+      function updateChatView() {
+        document.getElementById("chatarea").innerHTML = "";
+        loopA(chatArray);
+      }
+
+      function loopA(array) {
+        for (let i = 0; i < array.length; i++) {
+          let color = "var(--dark3)";
+          let margin = "40%";
+          if (i % 2 !== 0) {
+            color = "var(--dark1)";
+            margin = "0%";
+          }
+
+          document.getElementById(
+            "chatarea"
+          ).innerHTML += `<div style="background-color: ${color}; width: 60%; margin: 10px; padding: 10px; border-radius:10px; margin-left:${margin}">${array[i]}</div>`;
+        }
+      }
+
+      function changeMode() {
+        if (mode == "dark") {
+          document.documentElement.style.setProperty("--dark1", "#ebebeb");
+          document.documentElement.style.setProperty("--dark2", "#f0f0f0");
+          document.documentElement.style.setProperty("--dark3", "#f8f8f8");
+          document.documentElement.style.setProperty("--textDark", "#000000");
+          document.documentElement.style.setProperty(
+            "--lingrad",
+            "linear-gradient(90deg,rgba(0, 0, 0, 1) 0%,rgba(0, 0, 0, 1) 39%,rgba(0, 0, 0, 1) 75%);"
+          );
+          mode = "light";
+          return;
+        }
+        if (mode == "light") {
+          document.documentElement.style.setProperty("--dark1", "#121212");
+          document.documentElement.style.setProperty("--dark2", "#242424");
+          document.documentElement.style.setProperty("--dark3", "#363636");
+          document.documentElement.style.setProperty("--textDark", "#cac4c4");
+          document.documentElement.style.setProperty(
+            "--lingrad",
+            "linear-gradient(90deg,rgba(255, 240, 82, 1) 0%,rgba(255, 155, 34, 1) 39%,rgba(255, 59, 236, 1) 75%);"
+          );
+          mode = "dark";
+          return;
+        }
+      }
+    </script>
   </body>
 </html>
