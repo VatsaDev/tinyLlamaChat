@@ -59,6 +59,7 @@
         background-color: var(--dark2);
         color: var(--textDark);
         padding: 10px;
+        overflow: auto;
       }
       #prompting {
         position: absolute;
@@ -159,9 +160,12 @@
             .then(async (response) => {
               const data = await response.text();
               updateContext(data);
+              updateChatView()
             })
             .catch((error) => {
               console.log(error);
+              updateContext("ERROR");
+              updateChatView()
             });
         }
   
@@ -179,13 +183,15 @@
         function loopA(array) {
           for (let i = 0; i < array.length; i++) {
             let color = "#484848";
+            let margin = "40%";
             if (i % 2 !== 0) {
               color = "#121212";
+              margin ="0%"
             }
 
             document.getElementById(
               "chatarea"
-            ).innerHTML += `<div style="background-color: ${color}; width: 60%; margin: 10px; padding: 10px; border-radius:10px;">${array[i]}</div>`;
+            ).innerHTML += `<div style="background-color: ${color}; width: 60%; margin: 10px; padding: 10px; border-radius:10px; margin-left:${margin}">${array[i]}</div>`;
           }
         }
       </script>
