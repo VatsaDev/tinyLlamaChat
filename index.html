@@ -11,6 +11,7 @@
         --dark1: #121212;
         --dark2: #242424;
         --dark3: #363636;
+        --dark4: #484848;
         --textDark: #cac4c4;
         --lingrad: linear-gradient(
           90deg,
@@ -106,6 +107,20 @@
         margin: 5px;
         color: var(--textDark);
       }
+
+      #modal {
+        display: none;
+        position: absolute;
+        width: 75%;
+        height: 75%;
+        left: 12.5%;
+        top: 12.5%;
+        background-color: var(--dark4);
+        color: var(--textDark);
+        z-index: 9;
+        padding: 10px;
+        border-radius: 10px;
+      }
     </style>
     <link
       rel="stylesheet"
@@ -116,6 +131,50 @@
     />
   </head>
   <body>
+    <div id="modal">
+      <div style="float: right;" id="close"><i class="fa-solid fa-xmark" style="font-size: 30px;"></i></div>
+      <h2>Advanced Settings</h2>
+      <div>
+        <p style="display: inline; font-family: monospace;">Temperature:</p>
+        <input
+          type="range"
+          id="temp"
+          min="0"
+          max="1"
+          step="0.05"
+          value="0.8"
+          style="display: inline"
+        />
+        <label for="temp" style="display: inline; font-family: monospace;">0.8</label>
+      </div><br>
+      <div>
+        <p style="display: inline; font-family: monospace;">Top p:</p>
+        <input
+          type="range"
+          id="top_p"
+          min="0"
+          max="1"
+          step="0.05"
+          value="0.95"
+          style="display: inline"
+        />
+        <label for="top_p" style="display: inline; font-family: monospace;">0.95</label>
+      </div><br>
+      <div>
+        <p style="display: inline; font-family: monospace;">Max Tokens</p>
+        <input
+          type="range"
+          id="maxTok"
+          min="0"
+          max="500"
+          step="5"
+          value="100"
+          style="display: inline"
+        />
+        <label for="maxTok" style="display: inline; font-family: monospace;">100</label>
+      </div>
+      <p style="font-family: monospace; margin-top: 29%;">None of the Data you chat about in this UI is collected.</p>
+    </div>
     <div id="sidebar">
       <div id="top">
         <h1>TinyLlama</h1>
@@ -123,20 +182,7 @@
       </div>
       <div id="bottom">
         <hr style="border-color: #131313" />
-        <p>
-          <button
-            onclick="alert('This Model and this page do not use information you chat about')"
-            style="
-              border: none;
-              background: none;
-              padding: 0;
-              font-size: 16px;
-              color: var(--textDark);
-            "
-          >
-            Settings
-          </button>
-        </p>
+        <p></p>
         <p>
           <button
             onclick="changeMode()"
@@ -165,6 +211,18 @@
             >FeedBack</a
           >
         </p>
+        <button
+          id="open"
+          style="
+            border: none;
+            background: none;
+            padding: 0;
+            font-size: 16px;
+            color: var(--textDark);
+          "
+        >
+          Advanced Settings
+        </button>
       </div>
     </div>
     <div id="chatarea"></div>
@@ -214,6 +272,9 @@
         console.log(context);
         const url = new URL("/respond", window.location.origin);
         url.searchParams.set("input", context);
+        url.searchParams.set("temp", document.getElementById("temp").value); //temp
+        url.searchParams.set("topP", document.getElementById("top_p").value); //top_p
+        url.searchParams.set("maxTok", document.getElementById("maxTok").value); //maxTok
         console.log(url);
 
         fetch(url, {
@@ -265,6 +326,7 @@
           document.documentElement.style.setProperty("--dark1", "#ebebeb");
           document.documentElement.style.setProperty("--dark2", "#f0f0f0");
           document.documentElement.style.setProperty("--dark3", "#f8f8f8");
+          document.documentElement.style.setProperty("--dark4", "#fff");
           document.documentElement.style.setProperty("--textDark", "#000000");
           document.documentElement.style.setProperty(
             "--lingrad",
@@ -277,6 +339,7 @@
           document.documentElement.style.setProperty("--dark1", "#121212");
           document.documentElement.style.setProperty("--dark2", "#242424");
           document.documentElement.style.setProperty("--dark3", "#363636");
+          document.documentElement.style.setProperty("--dark4", "#484848");
           document.documentElement.style.setProperty("--textDark", "#cac4c4");
           document.documentElement.style.setProperty(
             "--lingrad",
@@ -286,6 +349,32 @@
           return;
         }
       }
+
+      // update slider Values
+      const tempInput = document.getElementById('temp');
+      const tempLabel = document.querySelector('label[for="temp"]');
+      const top_pInput = document.getElementById('top_p');
+      const top_pLabel = document.querySelector('label[for="top_p"]');
+      const maxTokInput = document.getElementById('maxTok');
+      const maxTokLabel = document.querySelector('label[for="maxTok"]');
+
+      tempInput.addEventListener('input', function() {
+        tempLabel.textContent = tempInput.value;
+      });
+      top_pInput.addEventListener('input', function() {
+        top_pLabel.textContent = top_pInput.value;
+      });
+      maxTokInput.addEventListener('input', function() {
+        maxTokLabel.textContent = maxTokInput.value;
+      });
+
+      //open close modal
+      document.querySelector("#close").addEventListener("click", function() {
+        document.querySelector("#modal").style.display = "none";
+      });
+      document.querySelector("#open").addEventListener("click", function() {
+        document.querySelector("#modal").style.display = "block";
+      });
     </script>
   </body>
 </html>
